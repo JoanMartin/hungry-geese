@@ -257,3 +257,4 @@ Thumbs.db
 # Custom
 !/**/.gitkeep
 *.npy
+*.ipynb
