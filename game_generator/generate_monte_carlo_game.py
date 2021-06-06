@@ -13,7 +13,7 @@ class GenerateMonteCarloGame:
         self.number_geese = number_geese
 
     def generate_game(self, num_rounds: int, deep: int):
-        boards, moves = [], []
+        boards, actions = [], []
 
         encoder = ThreePlaneEncoder(self.configuration.columns, self.configuration.rows)
         monte_carlo = MonteCarlo(num_rounds, deep)
@@ -23,14 +23,19 @@ class GenerateMonteCarloGame:
             round_actions = []
 
             for index, goose in enumerate(game_state.geese):
-                move = monte_carlo.select_best_move(game_state, index)
-                round_actions.append(move)
+                action = monte_carlo.select_best_action(game_state, index)
+                round_actions.append(action)
 
-                if move:
+                if action:
+                    # The encoded board situation is appended to boards
                     boards.append(encoder.encode(game_state, index))
-                    moves.append(move)
+
+                    # The one-hot-encoded action is appended to actions
+                    action_one_hot = np.zeros(encoder.num_actions())
+                    action_one_hot[encoder.encode_action(action)] = 1
+                    actions.append(action_one_hot)
 
             print(f"{game_state.steps} - {round_actions}")
             game_state = game_state.apply_move(round_actions)
 
-        return np.array(boards), np.array(moves)
+        return np.array(boards), np.array(actions)

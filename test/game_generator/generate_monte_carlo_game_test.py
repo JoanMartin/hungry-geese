@@ -14,7 +14,7 @@ class GenerateMonteCarloGameTest(unittest.TestCase):
 
     def test_run(self):
         generate_game = GenerateMonteCarloGame(self.configuration, 4)
-        boards, moves = generate_game.generate_game(250, 5)
+        boards, moves = generate_game.generate_game(5, 5)
 
-        # print(boards)
-        # print(moves)
+        print(boards)
+        print(moves)

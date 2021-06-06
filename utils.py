@@ -1,6 +1,8 @@
 import platform
 import subprocess
 
+from kaggle_environments.envs.hungry_geese.hungry_geese import Action, translate
+
 from game_state import GameState
 
 COLS = 'ABCDEFGHJKLMNOPQRST'
@@ -36,3 +38,12 @@ def clear_screen():
     else:  # Linux and Mac
         # the link uses print("\033c", end=""), but this is the original sequence given in the book.
         print(chr(27) + "[2J")
+
+
+def calculate_last_action(last_head: int, new_head: int, columns: int, rows: int):
+    for action in Action:
+        potential_position = translate(last_head, action, columns, rows)
+        if new_head == potential_position:
+            return action
+
+    return None

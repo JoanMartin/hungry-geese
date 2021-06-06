@@ -15,7 +15,7 @@ class MonteCarlo:
         self.num_rounds = num_rounds
         self.deep = deep
 
-    def select_best_move(self, game_state: GameState, goose_index: int):
+    def select_best_action(self, game_state: GameState, goose_index: int):
         if not len(game_state.geese[goose_index].positions) > 0:
             return None
 

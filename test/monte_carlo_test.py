@@ -31,7 +31,7 @@ class MonteCarloTest(unittest.TestCase):
 
             monte_carlo = MonteCarlo(1000, 6)
 
-            best_move = monte_carlo.select_best_move(game_state, 0)
+            best_move = monte_carlo.select_best_action(game_state, 0)
 
             best_moves.append(best_move)
 
@@ -53,7 +53,7 @@ class MonteCarloTest(unittest.TestCase):
 
             monte_carlo = MonteCarlo(1000, 6)
 
-            best_move = monte_carlo.select_best_move(game_state, 0)
+            best_move = monte_carlo.select_best_action(game_state, 0)
 
             best_moves.append(best_move)
 
@@ -75,7 +75,7 @@ class MonteCarloTest(unittest.TestCase):
 
             monte_carlo = MonteCarlo(1000, 6)
 
-            best_move = monte_carlo.select_best_move(game_state, 0)
+            best_move = monte_carlo.select_best_action(game_state, 0)
 
             best_moves.append(best_move)
 

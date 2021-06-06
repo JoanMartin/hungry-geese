@@ -1,7 +1,7 @@
 import itertools
 
 import numpy as np
-from kaggle_environments.envs.hungry_geese.hungry_geese import row_col
+from kaggle_environments.envs.hungry_geese.hungry_geese import row_col, Action
 
 from encoders.base_encoder import BaseEncoder
 from game_state import GameState
@@ -13,12 +13,10 @@ class ThreePlaneEncoder(BaseEncoder):
         self.columns = columns
         self.rows = rows
         self.num_planes = 3
+        self.actions = [action for action in Action]
 
     def name(self):
         return 'three_plane_encoder'
-
-    def num_points(self):
-        return self.columns * self.rows
 
     def encode(self, game_state: GameState, goose_index: int):
         board_tensor = np.zeros(self.shape())
@@ -53,6 +51,18 @@ class ThreePlaneEncoder(BaseEncoder):
                 board_tensor[2][row][column] = 1
 
         return board_tensor
+
+    def encode_action(self, action: Action):
+        return self.actions.index(action)
+
+    def decode_action_index(self, index: int):
+        return self.actions[index]
+
+    def num_points(self):
+        return self.columns * self.rows
+
+    def num_actions(self):
+        return len(self.actions)
 
     def shape(self):
         return self.num_planes, self.rows, self.columns

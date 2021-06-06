@@ -1,21 +1,13 @@
 # import time
 
-from kaggle_environments.envs.hungry_geese.hungry_geese import Configuration, translate, Action, Observation
+from kaggle_environments.envs.hungry_geese.hungry_geese import Configuration, Observation
 
 from game_state import GameState
 from goose import Goose
 from monte_carlo import MonteCarlo
+from utils import calculate_last_action
 
 last_observation = None
-
-
-def _calculate_last_action(last_head: int, new_head: int, columns: int, rows: int):
-    for action in Action:
-        potential_position = translate(last_head, action, columns, rows)
-        if new_head == potential_position:
-            return action
-
-    return None
 
 
 def agent(obs, config):
@@ -36,7 +28,7 @@ def agent(obs, config):
     geese = [
         Goose(index,
               positions,
-              _calculate_last_action(last_observation.geese[index][0], positions[0], columns, rows)
+              calculate_last_action(last_observation.geese[index][0], positions[0], columns, rows)
               if len(positions) > 0 else None)
         for index, positions in enumerate(observation.geese)
     ]
@@ -51,7 +43,7 @@ def agent(obs, config):
     else:
         monte_carlo = MonteCarlo(500, 8)
 
-    action = monte_carlo.select_best_move(game_state, observation.index)
+    action = monte_carlo.select_best_action(game_state, observation.index)
 
     last_observation = observation
 
