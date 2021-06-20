@@ -1,4 +1,5 @@
-import numpy as np
+import pickle
+
 from kaggle_environments.envs.hungry_geese.hungry_geese import Configuration
 
 from game_generator.generate_monte_carlo_game import GenerateMonteCarloGame
@@ -25,11 +26,16 @@ def main():
         ys.append(y)
 
         if i % 10 == 0:
-            np.save("generated_games/features.npy", np.concatenate(xs))
-            np.save("generated_games/labels.npy", np.concatenate(ys))
+            save_pickle(xs, ys)
 
-    np.save("generated_games/features.npy", np.concatenate(xs))
-    np.save("generated_games/labels.npy", np.concatenate(ys))
+    save_pickle(xs, ys)
+
+
+def save_pickle(x, y):
+    with open(r"../data/generated_mc_game_states.pickle", "wb") as f:
+        pickle.dump(x, f)
+    with open(r"../data/generated_mc_actions.pickle", "wb") as f:
+        pickle.dump(y, f)
 
 
 if __name__ == '__main__':

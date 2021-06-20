@@ -256,5 +256,10 @@ Thumbs.db
 
 # Custom
 !/**/.gitkeep
+*/meta_kaggle/*
+!*/meta_kaggle/.gitkeep
+*/scraped_games/*
+!*/scraped_games/.gitkeep
 *.npy
 *.ipynb
+*.pickle

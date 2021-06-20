@@ -153,8 +153,8 @@ class GameState:
         # Set rewards and update last action after deleting all geese
         # to ensure that geese don't receive a reward on the turn they perish.
         for index, goose in enumerate(next_geese):
+            goose.last_action = moves[index]
             if goose.status == "ACTIVE":
-                goose.last_action = moves[index]
                 goose.update_reward(self.steps, self.max_length)
             else:
                 goose.reward = 0

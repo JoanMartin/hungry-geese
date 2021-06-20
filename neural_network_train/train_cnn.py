@@ -2,42 +2,47 @@ import numpy as np
 from kaggle_environments.envs.hungry_geese.hungry_geese import Action, Configuration
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import SGD
+from tensorflow.keras.regularizers import l1_l2
 
-from encoders.three_plane_encoder import ThreePlaneEncoder
+from encoders.four_plane_encoder import FourPlaneEncoder
 from game_state import GameState
 from goose import Goose
+from neural_network_train.networks import medium
 
 np.random.seed(123)
 
-X = np.load('generated_games/features.npy', allow_pickle=True)
-Y = np.load('generated_games/labels.npy', allow_pickle=True)
+X = np.load('../data/features.npy', allow_pickle=True)
+Y = np.load('../data/labels.npy', allow_pickle=True)
 
 samples = X.shape[0]
 
 board_rows, board_cols = 7, 11
-input_channels = 3
+input_channels = 4
 input_size = input_channels * board_rows * board_cols
-input_shape = (input_channels, board_rows, board_cols)
+input_shape = (board_rows, board_cols, input_channels)
 
-# Transform the input into vectors, instead of 3 x 7 x 11 matrices
-X = X.reshape(samples, input_channels * board_rows * board_cols)
+X = X.reshape((samples, board_rows, board_cols, input_channels))
 
-# Hold back 10% of the data for a test set; train on the other 90%
+# Hold back a X% of the data for a test set; train on the other 100% - X%
 train_samples = int(0.8 * samples)
 X_train, X_test = X[:train_samples], X[train_samples:]
 Y_train, Y_test = Y[:train_samples], Y[train_samples:]
 
+network_layers = medium.layers(input_shape)
+
 model = Sequential()
-model.add(Dense(1000, activation='sigmoid', input_shape=(input_size,)))
-model.add(Dense(500, activation='sigmoid'))
-model.add(Dense(4, activation='sigmoid'))
+for layer in network_layers:
+    model.add(layer)
+model.add(Dense(4, activation='softmax', kernel_regularizer=l1_l2(l1=0.0005, l2=0.0005)))
 model.summary()
 
-model.compile(loss='mean_squared_error', optimizer='sgd', metrics=['accuracy'])
+sgd = SGD(lr=0.001, clipvalue=0.5)
+model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
 model.fit(X_train, Y_train,
           batch_size=64,
-          epochs=5,
+          epochs=25,
           verbose=1,
           validation_data=(X_test, Y_test))
 
@@ -63,10 +68,11 @@ game_state = GameState([goose_white, goose_blue, goose_green, goose_red],
                        configuration,
                        11)
 
-encoder = ThreePlaneEncoder(configuration.columns, configuration.rows)
+encoder = FourPlaneEncoder(configuration.columns, configuration.rows)
 board_tensor = encoder.encode(game_state, 0)
 
-X = np.array([board_tensor]).reshape(1, input_channels * board_rows * board_cols)
+X = np.array([board_tensor])
+X = X.reshape((1, board_rows, board_cols, input_channels))
 action_probabilities = model.predict(X)[0]
 
 # Increase the distance between the move likely and least likely moves

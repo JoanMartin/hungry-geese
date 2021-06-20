@@ -3,3 +3,5 @@ numpy
 stickytape
 tensorflow
 matplotlib
+pandas
+requests
