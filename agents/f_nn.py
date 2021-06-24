@@ -48,7 +48,7 @@ def agent(obs, config):
     encoder = ThreePlaneEncoder(configuration.columns, configuration.rows)
     board_tensor = encoder.encode(game_state, 0)
 
-    input_board = np.array([board_tensor]).reshape(1, encoder.num_planes * rows * columns)
+    input_board = np.array([board_tensor]).reshape((-1, rows, columns, encoder.num_planes))
     action_probabilities = model.predict(input_board)[0]
     action_probabilities = action_probabilities ** 3
     action_probabilities = np.clip(action_probabilities, eps, 1 - eps)

@@ -1,3 +1,7 @@
+import base64
+import bz2
+import pickle
+
 import numpy as np
 from kaggle_environments.envs.hungry_geese.hungry_geese import Action, Configuration
 from tensorflow.keras.layers import Dense
@@ -37,7 +41,7 @@ for layer in network_layers:
 model.add(Dense(4, activation='softmax', kernel_regularizer=l1_l2(l1=0.0005, l2=0.0005)))
 model.summary()
 
-sgd = SGD(lr=0.001, clipvalue=0.5)
+sgd = SGD(learning_rate=0.001, clipvalue=0.5)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
 model.fit(X_train, Y_train,
@@ -49,6 +53,11 @@ model.fit(X_train, Y_train,
 score = model.evaluate(X_test, Y_test, verbose=0)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
+
+with open("../data/model.txt", "wb") as f:
+    f.write(base64.b64encode(bz2.compress(pickle.dumps(model.to_json()))))
+with open("../data/weights.txt", "wb") as f:
+    f.write(base64.b64encode(bz2.compress(pickle.dumps(model.get_weights()), 1)))
 
 ############################
 # Model evaluation

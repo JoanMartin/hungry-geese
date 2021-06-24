@@ -263,3 +263,4 @@ Thumbs.db
 *.npy
 *.ipynb
 *.pickle
+*.txt
