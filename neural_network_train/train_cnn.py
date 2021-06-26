@@ -12,7 +12,7 @@ from tensorflow.keras.regularizers import l1_l2
 from encoders.four_plane_encoder import FourPlaneEncoder
 from game_state import GameState
 from goose import Goose
-from neural_network_train.networks import medium
+from neural_network_train.networks import medium_dropout
 
 np.random.seed(123)
 
@@ -33,7 +33,7 @@ train_samples = int(0.8 * samples)
 X_train, X_test = X[:train_samples], X[train_samples:]
 Y_train, Y_test = Y[:train_samples], Y[train_samples:]
 
-network_layers = medium.layers(input_shape)
+network_layers = medium_dropout.layers(input_shape)
 
 model = Sequential()
 for layer in network_layers:

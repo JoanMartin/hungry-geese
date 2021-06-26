@@ -1,5 +1,3 @@
-# import time
-
 from kaggle_environments.envs.hungry_geese.hungry_geese import Configuration, Observation
 
 from game_state import GameState
@@ -11,8 +9,6 @@ last_observation = None
 
 
 def agent(obs, config):
-    # start = time.time()
-
     global last_observation
 
     observation = Observation(obs)
@@ -22,8 +18,6 @@ def agent(obs, config):
     configuration = Configuration(config)
     columns = configuration.columns
     rows = configuration.rows
-
-    print(f"\n\n{observation.index} Step {observation.step} - {observation.geese[observation.index]}\n")
 
     geese = [
         Goose(index,
@@ -46,8 +40,5 @@ def agent(obs, config):
     action = monte_carlo.select_best_action(game_state, observation.index)
 
     last_observation = observation
-
-    # end = time.time()
-    # print(f"{observation.index} Time: {end - start}")
 
     return action.name

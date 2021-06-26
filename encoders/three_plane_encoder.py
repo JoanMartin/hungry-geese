@@ -19,7 +19,7 @@ class ThreePlaneEncoder(BaseEncoder):
         return 'three_plane_encoder'
 
     def encode(self, game_state: GameState, goose_index: int):
-        board_tensor = np.zeros(self.shape())
+        board_tensor = np.zeros(self.shape(), dtype=np.float32)
 
         bodies = [i.positions for i in game_state.geese]
 

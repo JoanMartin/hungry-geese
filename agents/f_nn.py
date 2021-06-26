@@ -1,13 +1,12 @@
 import base64
 import bz2
 import pickle
-import time
 
 import numpy as np
 from kaggle_environments.envs.hungry_geese.hungry_geese import Configuration, Observation
 from tensorflow.keras.models import model_from_json
 
-from encoders.three_plane_encoder import ThreePlaneEncoder
+from encoders.four_plane_encoder import FourPlaneEncoder
 from game_state import GameState
 from goose import Goose
 from nn_config import MODEL_JSON, MODEL_WEIGHTS
@@ -24,8 +23,6 @@ eps = 1e-6
 
 
 def agent(obs, config):
-    start = time.time()
-
     global last_observation
 
     observation = Observation(obs)
@@ -45,7 +42,7 @@ def agent(obs, config):
     ]
 
     game_state = GameState(geese, observation.food, configuration, observation.step + 1)
-    encoder = ThreePlaneEncoder(configuration.columns, configuration.rows)
+    encoder = FourPlaneEncoder(configuration.columns, configuration.rows)
     board_tensor = encoder.encode(game_state, 0)
 
     input_board = np.array([board_tensor]).reshape((-1, rows, columns, encoder.num_planes))
@@ -55,9 +52,6 @@ def agent(obs, config):
     action_probabilities = action_probabilities / np.sum(action_probabilities)
 
     last_observation = observation
-
-    end = time.time()
-    print(f"{observation.index} Time: {end - start}")
 
     action = encoder.decode_action_index(np.argmax(action_probabilities).item())
     return action.name

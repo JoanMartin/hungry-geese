@@ -2,12 +2,12 @@ import pickle
 
 import numpy as np
 
-from encoders.four_plane_encoder import FourPlaneEncoder
+from encoders.seventeen_plane_encoder import SeventeenPlaneEncoder
 
 
 def main():
     game_states_encoded, actions_encoded = [], []
-    encoder = FourPlaneEncoder(11, 7)
+    encoder = SeventeenPlaneEncoder(11, 7)
 
     with open(r"../data/game_states.pickle", "rb") as f:
         game_states = pickle.load(f)
