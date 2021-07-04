@@ -51,7 +51,7 @@ def main():
     xs = []
     ys = []
 
-    for f_name in random.sample(glob('scraped_games/*.json'), 500):
+    for f_name in random.sample(glob('scraped_games/*.json'), 1000):
         with open(f_name) as f:
             episode = json.load(f)
 

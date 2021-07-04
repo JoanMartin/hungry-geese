@@ -31,8 +31,8 @@ def main():
 
     x, y = np.array(game_states_encoded), np.array(actions_encoded)
 
-    np.save("../data/features.npy", np.concatenate([x]))
-    np.save("../data/labels.npy", np.concatenate([y]))
+    np.savez_compressed("../data/features.npz", data=x)
+    np.savez_compressed("../data/labels.npz", data=y)
 
 
 if __name__ == '__main__':

@@ -1,9 +1,8 @@
-from tensorflow.keras.layers import Dense, Flatten, Conv2D, ZeroPadding2D, \
-    GlobalAveragePooling2D, BatchNormalization, Activation
+from tensorflow.keras.layers import Dense, Flatten, Conv2D, GlobalAveragePooling2D, BatchNormalization, Activation
 from tensorflow.keras.regularizers import l2
 
 
-def layers(input_shape, num_layers=7, filters=48, kernel=5, weight_decay=1e-7):
+def layers(input_shape, num_layers=7, filters=32, kernel=3, weight_decay=1e-7):
     x = _conv_bn(filters, kernel, weight_decay, input_shape)
 
     for i in range(num_layers):
@@ -20,13 +19,14 @@ def layers(input_shape, num_layers=7, filters=48, kernel=5, weight_decay=1e-7):
 
 def _conv_bn(filters, kernel, weight_decay, input_shape=None):
     if input_shape:
-        zero_padding = ZeroPadding2D(padding=(2, 2), input_shape=input_shape)
+        conv = Conv2D(filters, kernel_size=kernel, padding='same',
+                      kernel_regularizer=l2(weight_decay), input_shape=input_shape)
     else:
-        zero_padding = ZeroPadding2D(padding=(2, 2))
+        conv = Conv2D(filters, kernel_size=kernel, padding='same',
+                      kernel_regularizer=l2(weight_decay))
 
     return [
-        zero_padding,
-        Conv2D(filters, kernel_size=kernel, kernel_regularizer=l2(weight_decay)),
+        conv,
         BatchNormalization(),
         Activation("relu"),
     ]

@@ -261,6 +261,7 @@ Thumbs.db
 */scraped_games/*
 !*/scraped_games/.gitkeep
 *.npy
+*.npz
 *.ipynb
 *.pickle
 *.txt
