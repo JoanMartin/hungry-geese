@@ -12,7 +12,7 @@ from tensorflow.keras.regularizers import l1_l2
 from encoders.seventeen_plane_encoder import SeventeenPlaneEncoder
 from game_state import GameState
 from goose import Goose
-from neural_network_train.networks import medium_bn
+from neural_network_train.networks import medium_bn_no_padding
 
 np.random.seed(123)
 
@@ -35,7 +35,7 @@ train_samples = int(0.8 * samples)
 X_train, X_test = X[:train_samples], X[train_samples:]
 Y_train, Y_test = Y[:train_samples], Y[train_samples:]
 
-network_layers = medium_bn.layers(input_shape)
+network_layers = medium_bn_no_padding.layers(input_shape, num_layers=12)
 
 model = Sequential()
 for layer in network_layers:
@@ -43,12 +43,12 @@ for layer in network_layers:
 model.add(Dense(4, activation='softmax', kernel_regularizer=l1_l2(l1=0.0005, l2=0.0005)))
 model.summary()
 
-sgd = SGD(learning_rate=0.001, clipvalue=0.5)
+sgd = SGD(learning_rate=0.01, clipvalue=0.5)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
 model.fit(X_train, Y_train,
-          batch_size=128,
-          epochs=150,
+          batch_size=256,
+          epochs=500,
           verbose=1,
           validation_data=(X_test, Y_test))
 
