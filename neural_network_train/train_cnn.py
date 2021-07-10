@@ -4,7 +4,7 @@ import pickle
 
 import numpy as np
 from kaggle_environments.envs.hungry_geese.hungry_geese import Action, Configuration
-from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import SGD
@@ -38,13 +38,36 @@ Y_train, Y_test = Y[:train_samples], Y[train_samples:]
 
 network_layers = medium_bn_no_padding.layers(input_shape, num_layers=12)
 
+# Model Callbacks
+callbacks = [
+    EarlyStopping(monitor="val_loss",
+                  min_delta=0.03,
+                  patience=50,
+                  verbose=1,
+                  mode="min",
+                  baseline=None,
+                  restore_best_weights=True),
+    EarlyStopping(monitor="val_accuracy",
+                  min_delta=0.03,
+                  patience=50,
+                  verbose=1,
+                  mode="max",
+                  baseline=None,
+                  restore_best_weights=True),
+    ModelCheckpoint('/content/drive/MyDrive/TFM/weights_checkpoint.hdf5',
+                    monitor='val_accuracy',
+                    verbose=1,
+                    save_best_only=True,
+                    mode='max')
+]
+
 model = Sequential()
 for layer in network_layers:
     model.add(layer)
 model.add(Dense(4, activation='softmax', kernel_regularizer=l1_l2(l1=0.0005, l2=0.0005)))
 model.summary()
 
-sgd = SGD(learning_rate=0.01, clipvalue=0.5)
+sgd = SGD(learning_rate=0.01, momentum=0.8, clipvalue=0.5)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
 model.fit(X_train, Y_train,
@@ -52,13 +75,7 @@ model.fit(X_train, Y_train,
           epochs=500,
           verbose=1,
           validation_data=(X_test, Y_test),
-          callbacks=[
-              ModelCheckpoint('/content/drive/MyDrive/TFM/weights_checkpoint.hdf5',
-                              monitor='val_accuracy',
-                              verbose=1,
-                              save_best_only=True,
-                              mode='max')
-          ])
+          callbacks=callbacks)
 
 score = model.evaluate(X_test, Y_test, verbose=0)
 print('Test loss:', score[0])

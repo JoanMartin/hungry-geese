@@ -14,7 +14,7 @@ def layers(input_shape, num_layers=7, filters=32, kernel=3, weight_decay=1e-7):
         Flatten(),
         Dense(1024),
         LeakyReLU(),
-        Dropout(rate=0.5),
+        Dropout(rate=0.3),
         Dense(512),
         LeakyReLU(),
         Dropout(rate=0.3)

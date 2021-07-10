@@ -12,7 +12,7 @@ import pandas as pd
 import requests
 
 MAX_CALLS_PER_DAY = 3000  # Kaggle says don't do more than 3600 per day and 1 per second
-LOWEST_SCORE_THRESH = 1150
+LOWEST_SCORE_THRESH = 1200
 
 META = "meta_kaggle/"
 MATCH_DIR = 'scraped_games/'
