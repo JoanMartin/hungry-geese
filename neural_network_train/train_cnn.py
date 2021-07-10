@@ -4,6 +4,7 @@ import pickle
 
 import numpy as np
 from kaggle_environments.envs.hungry_geese.hungry_geese import Action, Configuration
+from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import SGD
@@ -47,10 +48,17 @@ sgd = SGD(learning_rate=0.01, clipvalue=0.5)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
 model.fit(X_train, Y_train,
-          batch_size=256,
+          batch_size=128,
           epochs=500,
           verbose=1,
-          validation_data=(X_test, Y_test))
+          validation_data=(X_test, Y_test),
+          callbacks=[
+              ModelCheckpoint('/content/drive/MyDrive/TFM/weights_checkpoint.hdf5',
+                              monitor='val_accuracy',
+                              verbose=1,
+                              save_best_only=True,
+                              mode='max')
+          ])
 
 score = model.evaluate(X_test, Y_test, verbose=0)
 print('Test loss:', score[0])
