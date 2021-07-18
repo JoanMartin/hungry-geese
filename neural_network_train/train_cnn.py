@@ -4,7 +4,7 @@ import pickle
 
 import numpy as np
 from kaggle_environments.envs.hungry_geese.hungry_geese import Action, Configuration
-from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import SGD
@@ -41,16 +41,9 @@ network_layers = medium_bn_no_padding.layers(input_shape, num_layers=12)
 
 # Model Callbacks
 callbacks = [
-    EarlyStopping(monitor="val_loss",
-                  min_delta=0.015,
-                  patience=25,
-                  verbose=1,
-                  mode="min",
-                  baseline=None,
-                  restore_best_weights=True),
     EarlyStopping(monitor="val_accuracy",
-                  min_delta=0.015,
-                  patience=25,
+                  min_delta=0.01,
+                  patience=20,
                   verbose=1,
                   mode="max",
                   baseline=None,
@@ -59,7 +52,8 @@ callbacks = [
                     monitor='val_accuracy',
                     verbose=1,
                     save_best_only=True,
-                    mode='max')
+                    mode='max'),
+    ReduceLROnPlateau(monitor='val_accuracy', factor=0.3, patience=5, min_lr=0.0001, verbose=1)
 ]
 
 model = Sequential()
