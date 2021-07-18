@@ -58,6 +58,6 @@ def agent(obs, config):
 
     action = encoder.decode_action_index(np.argmax(action_probabilities).item())
 
-    print(f"{action_probabilities} - {action.name}")
+    print(f"{observation.index} - {observation.step} - {action_probabilities} - {action.name}")
 
     return action.name
