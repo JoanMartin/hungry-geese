@@ -1,6 +1,7 @@
 import platform
 import subprocess
 
+import numpy as np
 from kaggle_environments.envs.hungry_geese.hungry_geese import Action, translate
 
 from game_state import GameState
@@ -47,3 +48,14 @@ def calculate_last_action(last_head: int, new_head: int, columns: int, rows: int
             return action
 
     return None
+
+
+def center_matrix(b):
+    dy, dx = np.where(b[0])
+    center_y = (np.arange(0, 7) - 3 + dy[0]) % 7
+    center_x = (np.arange(0, 11) - 5 + dx[0]) % 11
+
+    b = b[:, center_y, :]
+    b = b[:, :, center_x]
+
+    return b

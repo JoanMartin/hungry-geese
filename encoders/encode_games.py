@@ -3,6 +3,7 @@ import pickle
 import numpy as np
 
 from encoders.seventeen_plane_encoder import SeventeenPlaneEncoder
+from utils import center_matrix
 
 
 def main():
@@ -22,7 +23,7 @@ def main():
         for index, action in enumerate(actions):
             if action:
                 # The encoded board situation is appended to game_states_encoded
-                game_states_encoded.append(encoder.encode(game_state, index))
+                game_states_encoded.append(center_matrix(encoder.encode(game_state, index)))
 
                 # The one-hot-encoded action is appended to actions_encoded
                 action_one_hot = np.zeros(encoder.num_actions())

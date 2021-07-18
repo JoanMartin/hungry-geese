@@ -14,6 +14,7 @@ from encoders.seventeen_plane_encoder import SeventeenPlaneEncoder
 from game_state import GameState
 from goose import Goose
 from neural_network_train.networks import medium_bn_no_padding
+from utils import center_matrix
 
 np.random.seed(123)
 
@@ -29,7 +30,7 @@ input_channels = encoder.num_planes
 input_size = input_channels * board_rows * board_cols
 input_shape = (board_rows, board_cols, input_channels)
 
-X = X.reshape((samples, board_rows, board_cols, input_channels))
+X = np.transpose(X, (0, 2, 3, 1))  # Channels last
 
 # Hold back a X% of the data for a test set; train on the other 100% - X%
 train_samples = int(0.8 * samples)
@@ -41,15 +42,15 @@ network_layers = medium_bn_no_padding.layers(input_shape, num_layers=12)
 # Model Callbacks
 callbacks = [
     EarlyStopping(monitor="val_loss",
-                  min_delta=0.03,
-                  patience=50,
+                  min_delta=0.015,
+                  patience=25,
                   verbose=1,
                   mode="min",
                   baseline=None,
                   restore_best_weights=True),
     EarlyStopping(monitor="val_accuracy",
-                  min_delta=0.03,
-                  patience=50,
+                  min_delta=0.015,
+                  patience=25,
                   verbose=1,
                   mode="max",
                   baseline=None,
@@ -67,7 +68,7 @@ for layer in network_layers:
 model.add(Dense(4, activation='softmax', kernel_regularizer=l1_l2(l1=0.0005, l2=0.0005)))
 model.summary()
 
-sgd = SGD(learning_rate=0.01, momentum=0.8, clipvalue=0.5)
+sgd = SGD(learning_rate=0.005, momentum=0.8, clipvalue=0.5)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
 model.fit(X_train, Y_train,
@@ -104,19 +105,16 @@ game_state = GameState([goose_white, goose_blue, goose_green, goose_red],
                        configuration,
                        11)
 
-board_tensor = encoder.encode(game_state, 0)
+board_tensor = center_matrix(encoder.encode(game_state, 0))
+input_board = np.transpose(board_tensor, (1, 2, 0))
+input_board = input_board.reshape((-1, board_rows, board_cols, encoder.num_planes))
 
-X = np.array([board_tensor])
-X = X.reshape((1, board_rows, board_cols, input_channels))
-action_probabilities = model.predict(X)[0]
+# Avoid suicide: body + opposite_side - my tail
+obstacles = input_board[:, :, :, [8, 9, 10, 11, 12]].max(axis=3) - input_board[:, :, :, [4, 5, 6, 7]].max(axis=3)
+obstacles = np.array([obstacles[0, 2, 5], obstacles[0, 3, 6], obstacles[0, 4, 5], obstacles[0, 3, 4]])
 
-# Increase the distance between the move likely and least likely moves
-action_probabilities = action_probabilities ** 3
-eps = 1e-6
-# Prevent move probabilities from getting stuck at 0 or 1
-action_probabilities = np.clip(action_probabilities, eps, 1 - eps)
-# Re-normalize to get another probability distribution.
-action_probabilities = action_probabilities / np.sum(action_probabilities)
+action_probabilities = model.predict(input_board)[0]
+action_probabilities = action_probabilities - obstacles
 
 print(action_probabilities)
 print(encoder.decode_action_index(np.argmax(action_probabilities).item()))
