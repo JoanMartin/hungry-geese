@@ -1,5 +1,5 @@
 from tensorflow.keras.layers import Dense, Flatten, Conv2D, ZeroPadding2D, \
-    GlobalAveragePooling2D, BatchNormalization, Activation
+    GlobalAveragePooling2D, BatchNormalization, LeakyReLU, Dropout
 from tensorflow.keras.regularizers import l2
 
 
@@ -12,7 +12,12 @@ def layers(input_shape, num_layers=7, filters=48, kernel=5, weight_decay=1e-7):
     x.extend([
         GlobalAveragePooling2D(),
         Flatten(),
-        Dense(1024, activation='relu')
+        Dense(1024),
+        LeakyReLU(),
+        Dropout(rate=0.3),
+        Dense(512),
+        LeakyReLU(),
+        Dropout(rate=0.3)
     ])
 
     return x
@@ -28,5 +33,5 @@ def _conv_bn(filters, kernel, weight_decay, input_shape=None):
         zero_padding,
         Conv2D(filters, kernel_size=kernel, kernel_regularizer=l2(weight_decay)),
         BatchNormalization(),
-        Activation("relu"),
+        LeakyReLU(),
     ]

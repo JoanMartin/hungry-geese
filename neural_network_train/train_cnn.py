@@ -13,7 +13,7 @@ from tensorflow.keras.regularizers import l1_l2
 from encoders.seventeen_plane_encoder import SeventeenPlaneEncoder
 from game_state import GameState
 from goose import Goose
-from neural_network_train.networks import medium_bn_no_padding
+from neural_network_train.networks import conv_bn_padding
 from utils import center_matrix
 
 np.random.seed(123)
@@ -37,13 +37,13 @@ train_samples = int(0.8 * samples)
 X_train, X_test = X[:train_samples], X[train_samples:]
 Y_train, Y_test = Y[:train_samples], Y[train_samples:]
 
-network_layers = medium_bn_no_padding.layers(input_shape, num_layers=12)
+network_layers = conv_bn_padding.layers(input_shape, num_layers=12)
 
 # Model Callbacks
 callbacks = [
     EarlyStopping(monitor="val_accuracy",
                   min_delta=0.01,
-                  patience=20,
+                  patience=25,
                   verbose=1,
                   mode="max",
                   baseline=None,
@@ -62,7 +62,7 @@ for layer in network_layers:
 model.add(Dense(4, activation='softmax', kernel_regularizer=l1_l2(l1=0.0005, l2=0.0005)))
 model.summary()
 
-sgd = SGD(learning_rate=0.005, momentum=0.8, clipvalue=0.5)
+sgd = SGD(learning_rate=0.01, momentum=0.8, clipvalue=0.5)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
 model.fit(X_train, Y_train,
