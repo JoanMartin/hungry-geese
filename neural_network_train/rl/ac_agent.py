@@ -1,5 +1,4 @@
 import numpy as np
-from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from tensorflow.keras.optimizers import SGD
 
 import kerasutil
@@ -67,17 +66,6 @@ class ACAgent:
         return final_action
 
     def train(self, experience, lr=0.01, batch_size=128):
-        callbacks = [
-            EarlyStopping(monitor="val_accuracy",
-                          min_delta=0.01,
-                          patience=25,
-                          verbose=1,
-                          mode="max",
-                          baseline=None,
-                          restore_best_weights=True),
-            ReduceLROnPlateau(monitor='val_accuracy', factor=0.3, patience=5, min_lr=0.0001, verbose=1)
-        ]
-
         opt = SGD(learning_rate=lr, momentum=0.8, clipvalue=0.5)
         self.model.compile(optimizer=opt,
                            loss=['categorical_crossentropy', 'mse'],
@@ -96,12 +84,7 @@ class ACAgent:
 
         experience_states = np.transpose(experience.states, (0, 2, 3, 1))  # Channels last
 
-        self.model.fit(experience_states, [policy_target, value_target],
-                       batch_size=batch_size,
-                       epochs=1,
-                       verbose=1,
-                       validation_split=0.2,
-                       callbacks=callbacks)
+        self.model.fit(experience_states, [policy_target, value_target], batch_size=batch_size, epochs=1)
 
     def serialize(self, h5file):
         h5file.create_group('encoder')
