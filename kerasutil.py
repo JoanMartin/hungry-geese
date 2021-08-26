@@ -40,7 +40,7 @@ def load_model_from_hdf5_group(f, custom_objects=None):
         os.unlink(tempfname)
 
 
-def set_gpu_memory_target():
+def set_gpu_memory_target(frac):
     """Configure Tensorflow to use a fraction of available GPU memory.
     Use this for evaluating models in parallel. By default, Tensorflow
     will try to map all available GPU memory in advance. You can
@@ -57,11 +57,14 @@ def set_gpu_memory_target():
     # Do the import here, not at the top, in case Tensorflow is not
     # installed at all.
     import tensorflow as tf
-
-    gpus = tf.config.experimental.list_physical_devices('GPU')
-    if gpus:
-        try:
-            for gpu in gpus:
-                tf.config.experimental.set_memory_growth(gpu, True)
-        except RuntimeError as e:
-            print(e)
+    from tensorflow.python.keras.backend import set_session
+    config = tf.compat.v1.ConfigProto()
+    config.gpu_options.per_process_gpu_memory_fraction = frac
+    set_session(tf.compat.v1.Session(config=config))
+    # gpus = tf.config.experimental.list_physical_devices('GPU')
+    # if gpus:
+    #     try:
+    #         for gpu in gpus:
+    #             tf.config.experimental.set_memory_growth(gpu, True)
+    #     except RuntimeError as e:
+    #         print(e)

@@ -23,7 +23,7 @@ def load_agent(filename):
 
 
 def get_temp_file():
-    fd, fname = tempfile.mkstemp(prefix='dlgo-train')
+    fd, fname = tempfile.mkstemp(prefix='dlgo-train-')
     os.close(fd)
     return fname
 
@@ -37,8 +37,8 @@ configuration = Configuration({"columns": 11,
 simulate_game = SimulateGame(configuration)
 
 
-def do_self_play(agent_filename, num_games, experience_filename):
-    kerasutil.set_gpu_memory_target()
+def do_self_play(agent_filename, num_games, experience_filename, gpu_frac):
+    kerasutil.set_gpu_memory_target(gpu_frac)
 
     random.seed(int(time.time()) + os.getpid())
     np.random.seed(int(time.time()) + os.getpid())
@@ -73,6 +73,7 @@ def do_self_play(agent_filename, num_games, experience_filename):
 def generate_experience(learning_agent, exp_file, num_games, num_workers):
     experience_files = []
     workers = []
+    gpu_frac = 0.95 / float(num_workers)
     games_per_worker = num_games // num_workers
     for i in range(num_workers):
         filename = get_temp_file()
@@ -82,14 +83,15 @@ def generate_experience(learning_agent, exp_file, num_games, num_workers):
             args=(
                 learning_agent,
                 games_per_worker,
-                filename
+                filename,
+                gpu_frac
             )
         )
         worker.start()
         workers.append(worker)
 
     # Wait for all workers to finish.
-    print('Waiting for workers...')
+    print(f'Waiting for {len(workers)} workers...')
     for worker in workers:
         worker.join()
 
@@ -141,9 +143,9 @@ def train_on_experience(learning_agent, output_file, experience_file, lr, batch_
 
 
 def play_games(args):
-    learning_agent, reference_agent, num_games = args
+    learning_agent, reference_agent, num_games, gpu_frac = args
 
-    kerasutil.set_gpu_memory_target()
+    kerasutil.set_gpu_memory_target(gpu_frac)
 
     random.seed(int(time.time()) + os.getpid())
     np.random.seed(int(time.time()) + os.getpid())
@@ -172,8 +174,9 @@ def play_games(args):
 
 def evaluate(learning_agent, reference_agent, num_games, num_workers):
     games_per_worker = num_games // num_workers
+    gpu_frac = 0.95 / float(num_workers)
     pool = multiprocessing.Pool(num_workers)
-    worker_args = [(learning_agent, reference_agent, games_per_worker) for _ in range(num_workers)]
+    worker_args = [(learning_agent, reference_agent, games_per_worker, gpu_frac) for _ in range(num_workers)]
     game_results = pool.map(play_games, worker_args)
 
     total_wins, total_losses = 0, 0
@@ -194,7 +197,6 @@ def main():
     parser.add_argument('--games-per-batch', '-g', type=int, default=1000)
     parser.add_argument('--work-dir', '-d')
     parser.add_argument('--num-workers', '-w', type=int, default=1)
-    parser.add_argument('--board-size', '-b', type=int, default=19)
     parser.add_argument('--lr', type=float, default=0.01)
     parser.add_argument('--bs', type=int, default=512)
     parser.add_argument('--log-file', '-l')
