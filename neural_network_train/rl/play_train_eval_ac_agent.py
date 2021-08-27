@@ -73,7 +73,7 @@ def do_self_play(agent_filename, num_games, experience_filename, gpu_frac):
 def generate_experience(learning_agent, exp_file, num_games, num_workers):
     experience_files = []
     workers = []
-    gpu_frac = 0.95 / float(num_workers)
+    gpu_frac = 0.90 / float(num_workers)
     games_per_worker = num_games // num_workers
     for i in range(num_workers):
         filename = get_temp_file()
@@ -174,7 +174,7 @@ def play_games(args):
 
 def evaluate(learning_agent, reference_agent, num_games, num_workers):
     games_per_worker = num_games // num_workers
-    gpu_frac = 0.95 / float(num_workers)
+    gpu_frac = 0.90 / float(num_workers)
     pool = multiprocessing.Pool(num_workers)
     worker_args = [(learning_agent, reference_agent, games_per_worker, gpu_frac) for _ in range(num_workers)]
     game_results = pool.map(play_games, worker_args)

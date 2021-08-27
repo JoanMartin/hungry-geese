@@ -84,7 +84,15 @@ class ACAgent:
 
         experience_states = np.transpose(experience.states, (0, 2, 3, 1))  # Channels last
 
-        self.model.fit(experience_states, [policy_target, value_target], batch_size=batch_size, epochs=1)
+        train_samples = int(0.8 * n)
+        x_train, x_test = experience_states[:train_samples], experience_states[train_samples:]
+        y1_train, y1_test = policy_target[:train_samples], policy_target[train_samples:]
+        y2_train, y2_test = value_target[:train_samples], value_target[train_samples:]
+
+        self.model.fit(x_train, [y1_train, y2_train], batch_size=batch_size, epochs=1)
+
+        score = self.model.evaluate(x_test, [y1_test, y2_test], verbose=0)
+        print('Score:', score)
 
     def serialize(self, h5file):
         h5file.create_group('encoder')
