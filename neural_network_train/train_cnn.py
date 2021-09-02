@@ -1,5 +1,7 @@
+import argparse
 import base64
 import bz2
+import os
 import pickle
 
 import numpy as np
@@ -18,8 +20,16 @@ from utils import center_matrix
 
 np.random.seed(123)
 
-X = np.load('/content/drive/MyDrive/TFM/features.npz', allow_pickle=True)['data']
-Y = np.load('/content/drive/MyDrive/TFM/labels.npz', allow_pickle=True)['data']
+parser = argparse.ArgumentParser()
+parser.add_argument('--input-work-dir', '-i')
+parser.add_argument('--output-work-dir', '-o')
+args = parser.parse_args()
+
+input_work_dir = args.input_work_dir
+output_work_dir = args.output_work_dir
+
+X = np.load(os.path.join(input_work_dir, 'features.npz'), allow_pickle=True)['data']
+Y = np.load(os.path.join(input_work_dir, 'labels.npz'), allow_pickle=True)['data']
 
 samples = X.shape[0]
 
@@ -48,7 +58,7 @@ callbacks = [
                   mode="max",
                   baseline=None,
                   restore_best_weights=True),
-    ModelCheckpoint('/content/drive/MyDrive/TFM/weights_checkpoint.hdf5',
+    ModelCheckpoint(os.path.join(output_work_dir, 'weights_checkpoint.hdf5'),
                     monitor='val_accuracy',
                     verbose=1,
                     save_best_only=True,
@@ -76,9 +86,9 @@ score = model.evaluate(X_test, Y_test, verbose=0)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
 
-with open("/content/drive/MyDrive/TFM/model.txt", "wb") as f:
+with open(os.path.join(output_work_dir, "model.txt"), "wb") as f:
     f.write(base64.b64encode(bz2.compress(pickle.dumps(model.to_json()))))
-with open("/content/drive/MyDrive/TFM/weights.txt", "wb") as f:
+with open(os.path.join(output_work_dir, "weights.txt"), "wb") as f:
     f.write(base64.b64encode(bz2.compress(pickle.dumps(model.get_weights()), 1)))
 
 ############################
