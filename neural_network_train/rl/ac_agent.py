@@ -25,6 +25,7 @@ class ACAgent:
         self.model = model
         self.encoder = encoder
         self.collector = None
+        self.temperature = 1.0
 
         self.last_state_value = 0
 
@@ -37,6 +38,7 @@ class ACAgent:
 
         board_rows = self.encoder.rows
         board_columns = self.encoder.columns
+        num_actions = self.encoder.num_actions()
 
         board_tensor = self.encoder.encode(game_state, goose_index)
         board_tensor = center_matrix(board_tensor)
@@ -50,10 +52,18 @@ class ACAgent:
         actions, values = self.model.predict(x)
         action_probabilities = actions[0]
         action_probabilities = action_probabilities - obstacles
+        action_probabilities[action_probabilities < 0] = 0
         estimated_value = values[0][0]
         self.last_state_value = float(estimated_value)
 
-        final_action_idx = np.argmax(action_probabilities)
+        # Prevent move probs from getting stuck at 0 or 1.
+        move_probs = clip_probs(action_probabilities, self.temperature)
+
+        # Turn the probabilities into a ranked list of moves.
+        action_candidates = np.arange(num_actions)
+        ranked_moves = np.random.choice(action_candidates, num_actions, replace=False, p=move_probs)
+
+        final_action_idx = ranked_moves[0]
 
         if self.collector is not None:
             self.collector.record_decision(state=board_tensor,

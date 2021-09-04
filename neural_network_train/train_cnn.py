@@ -15,7 +15,7 @@ from tensorflow.keras.regularizers import l1_l2
 from encoders.seventeen_plane_encoder import SeventeenPlaneEncoder
 from game_state import GameState
 from goose import Goose
-from neural_network_train.networks import conv_bn_padding
+from neural_network_train.networks import conv_bn
 from utils import center_matrix
 
 np.random.seed(123)
@@ -47,7 +47,7 @@ train_samples = int(0.8 * samples)
 X_train, X_test = X[:train_samples], X[train_samples:]
 Y_train, Y_test = Y[:train_samples], Y[train_samples:]
 
-network_layers = conv_bn_padding.layers(input_shape, num_layers=12)
+network_layers = conv_bn.layers(input_shape, num_layers=12)
 
 # Model Callbacks
 callbacks = [

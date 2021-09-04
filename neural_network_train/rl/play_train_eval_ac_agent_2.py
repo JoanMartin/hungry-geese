@@ -39,8 +39,14 @@ def generate_experience(learning_agent, experience_filename, num_games):
     random.seed(int(time.time()) + os.getpid())
     np.random.seed(int(time.time()) + os.getpid())
 
-    agents = [load_agent(learning_agent)] * 4
-    collectors = [ExperienceCollector()] * 4
+    agents = [load_agent(learning_agent),
+              load_agent(learning_agent),
+              load_agent(learning_agent),
+              load_agent(learning_agent)]
+    collectors = [ExperienceCollector(),
+                  ExperienceCollector(),
+                  ExperienceCollector(),
+                  ExperienceCollector()]
 
     for i in range(num_games):
         print('Simulating game %d/%d...' % (i + 1, num_games))
@@ -90,12 +96,19 @@ def evaluate(learning_agent, reference_agent, num_games):
         print('Simulating game %d/%d...' % (i + 1, num_games))
         game_state = simulate_game.simulate(agents)
         winner_index = max(game_state.geese, key=lambda x: x.reward).index
-        print(f'Agent {winner_index} wins')
 
-        if winner_index == 0:
+        if winner_index == 0 and game_state.geese[0].reward > 0:
+            print(f'Agent wins')
             wins += 1
         else:
+            print(f'Agent losses')
             losses += 1
+
+        winning_pct = wins / (wins + losses)
+        if i > num_games / 4 and (winning_pct > 0.9 or winning_pct < 0.25):
+            break
+        if i > num_games / 2 and (winning_pct > 0.75 or winning_pct < 0.30):
+            break
 
         print('Agent record: %d/%d' % (wins, wins + losses))
 
@@ -103,13 +116,17 @@ def evaluate(learning_agent, reference_agent, num_games):
     print('Learner: %d' % wins)
     print('Reference: %d' % losses)
 
-    return wins
+    print(f'Won {wins} / {wins + losses} games ({float(wins) / float(wins + losses)})')
+
+    winning_pct = wins / (wins + losses)
+    return winning_pct > 0.6
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--agent', required=True)
-    parser.add_argument('--games-per-batch', '-g', type=int, default=1000)
+    parser.add_argument('--games-per-batch-training', '-g', type=int, default=1000)
+    parser.add_argument('--games-per-batch-evaluation', '-e', type=int, default=1000)
     parser.add_argument('--work-dir', '-d')
     parser.add_argument('--lr', type=float, default=0.01)
     parser.add_argument('--bs', type=int, default=512)
@@ -134,7 +151,7 @@ def main():
 
         generate_experience(learning_agent,
                             experience_file,
-                            num_games=args.games_per_batch)
+                            num_games=args.games_per_batch_training)
 
         train_on_experience(learning_agent,
                             tmp_agent,
@@ -142,18 +159,15 @@ def main():
                             lr=args.lr,
                             batch_size=args.bs)
 
-        wins = evaluate(learning_agent,
-                        reference_agent,
-                        num_games=100)
+        is_winner = evaluate(learning_agent,
+                             reference_agent,
+                             num_games=args.games_per_batch_evaluation)
 
-        total_games += args.games_per_batch
-
-        print('Won %d / 100 games (%.3f)' % (wins, float(wins) / 100.0))
-        log_f.write('Won %d / 100 games (%.3f)\n' % (wins, float(wins) / 100.0))
+        total_games += args.games_per_batch_training
         shutil.copy(tmp_agent, working_agent)
         learning_agent = working_agent
 
-        if wins >= 60:
+        if is_winner:
             next_filename = os.path.join(args.work_dir, 'agent_%08d.hdf5' % (total_games,))
             shutil.move(tmp_agent, next_filename)
             reference_agent = next_filename
