@@ -6,7 +6,7 @@ import pickle
 
 import numpy as np
 from kaggle_environments.envs.hungry_geese.hungry_geese import Action, Configuration
-from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau, CSVLogger
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import SGD
@@ -63,7 +63,8 @@ callbacks = [
                     verbose=1,
                     save_best_only=True,
                     mode='max'),
-    ReduceLROnPlateau(monitor='val_accuracy', factor=0.3, patience=5, min_lr=0.0001, verbose=1)
+    ReduceLROnPlateau(monitor='val_accuracy', factor=0.3, patience=5, min_lr=0.0001, verbose=1),
+    CSVLogger(os.path.join(output_work_dir, 'train_log.csv'), separator=",", append=False)
 ]
 
 model = Sequential()

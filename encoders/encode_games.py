@@ -1,3 +1,4 @@
+import argparse
 import pickle
 
 import numpy as np
@@ -5,15 +6,22 @@ import numpy as np
 from encoders.seventeen_plane_encoder import SeventeenPlaneEncoder
 from utils import center_matrix
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--game-states-file', required=True)
+parser.add_argument('--actions-file', required=True)
+parser.add_argument('--features-file', required=True)
+parser.add_argument('--labels-file', required=True)
+args = parser.parse_args()
+
 
 def main():
     game_states_encoded, actions_encoded = [], []
     encoder = SeventeenPlaneEncoder(11, 7)
 
-    with open(r"../data/game_states.pickle", "rb") as f:
+    with open(args.game_states_file, "rb") as f:
         game_states = pickle.load(f)
 
-    with open(r"../data/actions.pickle", "rb") as f:
+    with open(args.actions_file, "rb") as f:
         round_actions = pickle.load(f)
 
     game_states = [game_state for i in game_states for game_state in i]
@@ -32,8 +40,8 @@ def main():
 
     x, y = np.array(game_states_encoded), np.array(actions_encoded)
 
-    np.savez_compressed("../data/features.npz", data=x)
-    np.savez_compressed("../data/labels.npz", data=y)
+    np.savez_compressed(args.features_file, data=x)
+    np.savez_compressed(args.labels_file, data=y)
 
 
 if __name__ == '__main__':
