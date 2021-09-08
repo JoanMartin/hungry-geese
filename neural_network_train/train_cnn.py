@@ -77,7 +77,7 @@ sgd = SGD(learning_rate=0.01, momentum=0.8, clipvalue=0.5)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
 model.fit(X_train, Y_train,
-          batch_size=128,
+          batch_size=512,
           epochs=500,
           verbose=1,
           validation_data=(X_test, Y_test),
