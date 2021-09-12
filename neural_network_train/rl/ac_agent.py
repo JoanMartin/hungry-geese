@@ -75,7 +75,7 @@ class ACAgent:
         return final_action
 
     def train(self, experience, lr=0.01, batch_size=128):
-        opt = SGD(learning_rate=lr, momentum=0.8, clipvalue=0.5)
+        opt = SGD(learning_rate=lr, momentum=0.9, clipvalue=0.5)
         self.model.compile(optimizer=opt,
                            loss=['categorical_crossentropy', 'mse'],
                            loss_weights=[1.0, 0.5],
