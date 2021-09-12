@@ -47,7 +47,7 @@ train_samples = int(0.8 * samples)
 X_train, X_test = X[:train_samples], X[train_samples:]
 Y_train, Y_test = Y[:train_samples], Y[train_samples:]
 
-network_layers = conv_bn.layers(input_shape, num_layers=12)
+network_layers = conv_bn.layers(input_shape, num_layers=6, filters=24, kernel=3, weight_decay=1e-4)
 
 # Model Callbacks
 callbacks = [
@@ -73,7 +73,7 @@ for layer in network_layers:
 model.add(Dense(4, activation='softmax', kernel_regularizer=l1_l2(l1=0.0005, l2=0.0005)))
 model.summary()
 
-sgd = SGD(learning_rate=0.01, momentum=0.8, clipvalue=0.5)
+sgd = SGD(learning_rate=0.01, momentum=0.9, clipvalue=0.5)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
 model.fit(X_train, Y_train,

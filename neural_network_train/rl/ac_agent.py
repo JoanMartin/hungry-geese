@@ -70,7 +70,6 @@ class ACAgent:
                                            action=final_action_idx,
                                            estimated_value=estimated_value)
 
-        # Turn the probabilities into a ranked list of moves.
         final_action = self.encoder.decode_action_index(final_action_idx.item())
 
         return final_action
