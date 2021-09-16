@@ -9,11 +9,11 @@ from tensorflow.keras.models import model_from_json
 from encoders.seventeen_plane_encoder import SeventeenPlaneEncoder
 from game_state import GameState
 from goose import Goose
-from nn_config import MODEL_JSON, MODEL_WEIGHTS
+from nn_config import MODEL_JSON_NN, MODEL_WEIGHTS_NN
 from utils import calculate_last_action, center_matrix
 
-model_json = pickle.loads(bz2.decompress(base64.b64decode(MODEL_JSON)))
-model_weights = pickle.loads(bz2.decompress(base64.b64decode(MODEL_WEIGHTS)))
+model_json = pickle.loads(bz2.decompress(base64.b64decode(MODEL_JSON_NN)))
+model_weights = pickle.loads(bz2.decompress(base64.b64decode(MODEL_WEIGHTS_NN)))
 
 model = model_from_json(model_json)
 model.set_weights(model_weights)
@@ -57,7 +57,5 @@ def agent(obs, config):
     last_observation = observation
 
     action = encoder.decode_action_index(np.argmax(action_probabilities).item())
-
-    print(f"{observation.index} - {observation.step} - {action_probabilities} - {action.name}")
 
     return action.name

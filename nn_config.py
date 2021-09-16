@@ -1,3 +1,7 @@
-MODEL_JSON = b''
+MODEL_JSON_NN = b''
 
-MODEL_WEIGHTS = b''
+MODEL_WEIGHTS_NN = b''
+
+MODEL_JSON_RL = b''
+
+MODEL_WEIGHTS_RL = b''

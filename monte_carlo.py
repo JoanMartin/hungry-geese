@@ -1,4 +1,3 @@
-import collections
 import copy
 from random import choice
 
@@ -31,9 +30,6 @@ class MonteCarlo:
 
         x = {k: mean(v) for k, v in action_rewards.items() if v}
         max_value = max(x.values())
-
-        # grouped = {k: collections.Counter(v) for k, v in action_rewards.items()}
-        # print(f"{goose_index} - Reward \n {x} \n {grouped}")
 
         return choice([k for k, v in x.items() if v == max_value])
 

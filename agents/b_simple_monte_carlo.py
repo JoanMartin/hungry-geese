@@ -193,16 +193,6 @@ def simulate_matches(observation, configuration, num_matches, depth):
         else:
             scores.append(rewards[observation.index] / mean)
 
-    # print('frame: ', frame)
-    # print('options: ', options)
-    # print('scores: ', scores)
-    # print('reward totals: ', reward_totals)
-    # print('lengths: ')
-    # print('0: ', len(observation.geese[0]))
-    # print('1: ', len(observation.geese[1]))
-    # print('2: ', len(observation.geese[2]))
-    # print('3: ', len(observation.geese[3]))
-
     return options[scores.index(max(scores))]
 
 

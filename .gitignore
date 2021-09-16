@@ -266,3 +266,5 @@ Thumbs.db
 *.ipynb
 *.pickle
 *.txt
+!agents/experiments/mcts_nn/*.txt
+!agents/experiments/scraped_nn/*.txt

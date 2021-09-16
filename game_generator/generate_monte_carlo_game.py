@@ -28,7 +28,6 @@ class GenerateMonteCarloGame:
             game_states.append(copy.deepcopy(game_state))
             actions.append(copy.deepcopy(step_actions))
 
-            print(f"{game_state.steps} - {step_actions}")
             game_state = game_state.apply_move(step_actions)
 
         return game_states, actions

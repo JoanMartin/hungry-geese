@@ -14,8 +14,6 @@ class Goose:
 
     def update_reward(self, step: int, max_length: int):
         self.reward = (step + 1) * (max_length + 1) + (len(self.positions) ** 5)
-        # self.reward = (step + 1) * (max_length + 1) \
-        #               + (100 * len(self.positions) * 3 * (1 / (len(self.positions) ** 0.2)))
 
     def update_status(self, new_status):
         self.status = new_status

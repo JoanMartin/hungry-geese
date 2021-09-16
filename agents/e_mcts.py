@@ -19,8 +19,6 @@ def agent(obs, config):
     columns = configuration.columns
     rows = configuration.rows
 
-    print(f"\n\n{observation.index} Step {observation.step} - {observation.geese[observation.index]}\n")
-
     geese = [
         Goose(index,
               positions,
